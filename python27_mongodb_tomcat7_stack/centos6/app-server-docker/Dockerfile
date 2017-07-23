@@ -6,13 +6,13 @@ RUN yum -y update; yum clean all
 RUN yum -y install epel-release; yum clean all
 
 #Install gcc for python installation
-RUN yum install -y gcc;yum clean all
+RUN yum install -y gcc; yum clean all
 
 #Install WGET
-RUN yum install -y wget;yum clean all
+RUN yum install -y wget; yum clean all
 
 #Install tar
-RUN yum install -y tar;yum clean all
+RUN yum install -y tar; yum clean all
 
 #Make directory and download Python in it
 RUN mkdir /srv/src /srv/software
@@ -26,12 +26,14 @@ RUN mkdir /srv/src/Python /srv/software/Python && \
         make && \
         make install
 
+# Put python directory in PATH
 ENV PATH=/srv/software/Python/bin:${PATH}
 
+# Install mongodb
 RUN yum -y install mongodb-server; yum clean all
 RUN mkdir -p /data/db
 
-#Install JDK
+# Install JDK and export ENV variables to be used by tomcat
 ENV JAVA_VER=1.8.0_141 JAVA_DWL_VER=8u141 JAVA_DWL_BVER=b15 \
     JAVA_HOME=/usr/java64/current
 ENV JDK_HOME=${JAVA_HOME} \
@@ -47,15 +49,15 @@ RUN mkdir /usr/java64 ; cd /usr/java64/ ; \
 # Download Apache Tomcat 7
 RUN cd /tmp;wget http://www-eu.apache.org/dist/tomcat/tomcat-7/v7.0.79/bin/apache-tomcat-7.0.79.tar.gz 
  
-# untar and move to proper location
+# untar and move to appropriate location
 RUN cd /tmp;tar xvf apache-tomcat-7.0.79.tar.gz
  
 RUN cd /tmp;mv apache-tomcat-7.0.79 /opt/tomcat7
- 
-RUN chmod -R 755 /opt/tomcat7
- 
-EXPOSE 8080
 
-#CMD ["python", "--version"] 
+# Give proper permissions to tomcat
+RUN chmod -R 755 /opt/tomcat7
+
+# Expose 8080 port of container to outside
+EXPOSE 8080
 
 CMD /opt/tomcat7/bin/catalina.sh run
